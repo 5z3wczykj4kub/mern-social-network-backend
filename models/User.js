@@ -24,9 +24,7 @@ const schema = mongoose.Schema(
       maxLength: 320,
       lowercase: true,
     },
-    avatarImageUrl: {
-      type: String,
-    },
+    avatarImageUrl: String,
     domicile: {
       type: String,
       required: true,
@@ -61,18 +59,27 @@ const schema = mongoose.Schema(
        */
     },
     /**
+     * TODO:
      * No entry means that no one has sent a friend request.
      * 0 (default) means that the request is pending.
      * 1 stands for "accepted".
      * -1 stands for "rejected".
+     *
+     * friends: [
+     * {
+     *   type: mongoose.Schema.Types.ObjectId,
+     *   ref: 'User',
+     *   status: {
+     *     type: Number,
+     *     default: 0,
+     *     },
+     *   },
+     * ],
      */
     friends: [
       {
-        friend: mongoose.Schema.Types.ObjectId,
-        status: {
-          type: Number,
-          default: 0,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
       },
     ],
   },

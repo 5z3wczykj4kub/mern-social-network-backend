@@ -47,5 +47,5 @@ export const signInController = async (req, res) => {
 };
 
 export const getAuthUserController = async (req, res) => {
-  res.status(200).json({ ...req.authUser.toObject(), timestamp: +new Date() });
+  res.status(200).json({ ...req.authUser.toObject(), timestamp: new Date() });
 };
