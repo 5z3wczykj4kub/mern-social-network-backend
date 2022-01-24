@@ -1,74 +1,41 @@
 import { body } from 'express-validator';
 import User from '../models/User.js';
 
-export const signUpValidator = [
-  body('firstName')
-    .trim()
-    .toLowerCase()
-    .escape()
-    .isLength({ min: 1, max: 50 })
-    .withMessage('Must be between 1 and 50 characters in length'),
-  body('lastName')
-    .trim()
-    .toLowerCase()
-    .escape()
-    .isLength({ min: 1, max: 50 })
-    .withMessage('Must be between 1 and 50 characters in length'),
+const signUpValidator = [
+  body('firstName').trim().escape().toLowerCase(),
+  body('lastName').trim().escape().toLowerCase(),
   body('email')
-    .isEmail()
-    .withMessage('Incorrect email format')
-    .bail()
     .normalizeEmail()
     .custom(async (email) => {
-      // Check if email is already used
-      const user = await User.findOne({ email });
-      if (user) throw new Error('Email is already used');
+      const isEmailAlreadyUsed = !!(await User.count({ where: { email } }));
+      if (isEmailAlreadyUsed) throw new Error('email already used');
       return true;
     }),
   body('password')
-    .isLength({ min: 12, max: 72 })
-    .withMessage('Must be between 12 and 72 characters in length')
-    .bail()
+    .trim()
     .matches(/^([a-zA-Z~`!@#$%^&*()_\-+={[}\]:;"'\|\\<,>.?\/\d]){12,72}$/)
-    .withMessage('Must not contain any whitespaces'),
-  body('confirmedPassword').custom((confirmedPassword, { req }) => {
-    if (confirmedPassword !== req.body.password)
-      throw new Error('Passwords do not match');
-    return true;
-  }),
-  body('domicile')
+    .withMessage(
+      'password must be between 12 and 72 characters in length and not contain any whitespaces'
+    ),
+  body('confirmedPassword')
     .trim()
-    .toLowerCase()
-    .escape()
-    .isLength({ min: 1, max: 85 })
-    .withMessage('Must be between 1 and 85 characters in length'),
-  body('gender')
-    .trim()
-    .toLowerCase()
-    .custom((gender) => {
-      if (gender === 'male' || gender === 'female') return true;
-      throw new Error('Gender must be either male or female');
+    .custom((confirmedPassword, { req }) => {
+      if (confirmedPassword !== req.body.password)
+        throw new Error('passwords do not match');
+      return true;
     }),
-  body('dateOfBirth')
-    .trim()
-    .escape()
-    .notEmpty()
-    /**
-     * FIXME:
-     * Add better date validation.
-     */
-    .withMessage('Invalid date format'),
+  body('domicile').trim().escape().toLowerCase(),
+  body('gender').trim().escape().toLowerCase(),
+  body('dateOfBirth').trim().escape().toLowerCase(),
 ];
 
-export const signInValidator = [
-  body('email')
-    .isEmail()
-    .withMessage('Incorrect email format')
-    .normalizeEmail(),
+const signInValidator = [
+  body('email').normalizeEmail().isEmail().withMessage('invalid email format'),
   body('password')
-    .isLength({ min: 12, max: 72 })
-    .withMessage('Must be between 12 and 72 characters in length')
-    .bail()
     .matches(/^([a-zA-Z~`!@#$%^&*()_\-+={[}\]:;"'\|\\<,>.?\/\d]){12,72}$/)
-    .withMessage('Must not contain any whitespaces'),
+    .withMessage(
+      'password must be between 12 and 72 characters in length and not contain any whitespaces'
+    ),
 ];
+
+export { signUpValidator, signInValidator };

@@ -1,4 +1,4 @@
-export const MOCKED_USERS_DATA = [
+export const mockedUsers = [
   {
     firstName: 'John',
     lastName: 'Doe',

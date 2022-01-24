@@ -1,89 +1,125 @@
-import mongoose from 'mongoose';
+import { DataTypes, Model, UUIDV4 } from 'sequelize';
+import sequelize from '../config/sequelize.js';
 
-const schema = mongoose.Schema(
+class User extends Model {}
+
+User.init(
   {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: UUIDV4,
+      primaryKey: true,
+    },
     firstName: {
-      type: String,
-      required: true,
-      minLength: 1,
-      maxLength: 50,
-      lowercase: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [1, 50],
+          msg: 'first name must be between 1 and 50 characters in length',
+        },
+        isAlpha: {
+          args: true,
+          msg: 'first name must contain only letters',
+        },
+        isLowercase: {
+          args: true,
+          msg: 'first name must be lowercase',
+        },
+      },
     },
     lastName: {
-      type: String,
-      required: true,
-      minLength: 1,
-      maxLength: 50,
-      lowercase: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [1, 50],
+          msg: 'last name must be between 1 and 50 characters in length',
+        },
+        isAlpha: {
+          args: true,
+          msg: 'last name must contain only letters',
+        },
+        isLowercase: {
+          args: true,
+          msg: 'last name must be lowercase',
+        },
+      },
     },
     email: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
       unique: true,
-      minLength: 3,
-      maxLength: 320,
-      lowercase: true,
+      validate: {
+        isEmail: {
+          args: true,
+          msg: 'invalid email format',
+        },
+      },
     },
-    avatarImageUrl: String,
+    avatar: {
+      type: DataTypes.STRING,
+      /**
+       * TODO:
+       * Validate for being either a
+       * pathname or some kind of id.
+       */
+    },
     domicile: {
-      type: String,
-      required: true,
-      minLength: 1,
-      maxLength: 85, // Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu
-      lowercase: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [1, 85], // Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu
+          msg: 'domicile must be between 1 and 85 characters in length',
+        },
+        isLowercase: {
+          args: true,
+          msg: 'domicile must be lowercase',
+        },
+      },
     },
     gender: {
-      type: String,
-      required: true,
-      lowercase: true,
-      enum: ['male', 'female'],
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: {
+          args: [['male', 'female']],
+          msg: 'gender must be either male or female',
+        },
+      },
     },
     dateOfBirth: {
-      type: Date,
-      required: true,
-      /**
-       * FIXME:
-       * Add min, max date validation.
-       */
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        isDate: {
+          args: true,
+          msg: 'invalid date format',
+        },
+        isAfter: {
+          args: '1900-01-01',
+          msg: 'the earliest possible date is 1900-01-01',
+        },
+      },
     },
     password: {
-      type: String,
-      required: true,
-      minLength: 60,
-      maxLength: 60,
-      /**
-       * From bcryptjs docs (https://www.npmjs.com/package/bcryptjs):
-       * "The maximum input length is 72 bytes
-       * (note that UTF8 encoded characters use up to 4 bytes)
-       * and the length of generated hashes is 60 characters."
-       */
-    },
-    /**
-     * TODO:
-     * No entry means that no one has sent a friend request.
-     * 0 (default) means that the request is pending.
-     * 1 stands for "accepted".
-     * -1 stands for "rejected".
-     *
-     * friends: [
-     * {
-     *   type: mongoose.Schema.Types.ObjectId,
-     *   ref: 'User',
-     *   status: {
-     *     type: Number,
-     *     default: 0,
-     *     },
-     *   },
-     * ],
-     */
-    friends: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        len: {
+          // bcryptjs hash is 60 characters long
+          args: 60,
+          msg: 'password must be 60 characters long',
+        },
       },
-    ],
+    },
   },
-  { timestamps: true }
+  {
+    sequelize,
+    modelName: 'User',
+  }
 );
 
-export default mongoose.model('User', schema);
+export default User;

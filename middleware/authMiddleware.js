@@ -5,28 +5,30 @@ const authMiddleware = async (req, res, next) => {
   if (
     !req.headers.authorization ||
     !req.headers.authorization.startsWith('Bearer')
-  )
-    return next(
-      new Error(
-        'Invalid token - user unauthorized to access this protected route'
-      )
-    );
+  ) {
+    res.status(401);
+    return next(new Error('invalid token'));
+  }
+
+  const token = req.headers.authorization.split(' ')[1];
 
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const { id } = jwt.verify(token, process.env.JWT_SECRET);
-    const authUser = await User.findById(id).select('-password -__v');
-    if (!authUser) throw new Error();
-    req.authUser = authUser;
-    next();
+    var id = jwt.verify(token, process.env.JWT_SECRET).id;
   } catch (error) {
     res.status(401);
-    return next(
-      new Error(
-        'Invalid token - user unauthorized to access this protected route'
-      )
-    );
+    return next(new Error('invalid token'));
   }
+
+  const user = await User.findOne({
+    where: { id },
+    attributes: { exclude: ['password'] },
+  });
+  if (!user) {
+    res.status(404);
+    return next(new Error("user doesn't exists"));
+  }
+  req.user = user.dataValues;
+  return next();
 };
 
 export default authMiddleware;
