@@ -22,12 +22,13 @@ const authMiddleware = async (req, res, next) => {
   const user = await User.findOne({
     where: { id },
     attributes: { exclude: ['password'] },
+    raw: true,
   });
   if (!user) {
     res.status(404);
     return next(new Error("user doesn't exists"));
   }
-  req.user = user.dataValues;
+  req.user = user;
   return next();
 };
 
