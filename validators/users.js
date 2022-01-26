@@ -27,9 +27,9 @@ const getManyUsersValidator = [
   query('leid')
     .trim()
     .escape()
-    .isUUID()
+    .isInt()
     .optional()
-    .withMessage('query param `leid` must be valid uuid'),
+    .withMessage('query param `leid` must have valid id format'),
 ];
 
 export { getManyUsersValidator };

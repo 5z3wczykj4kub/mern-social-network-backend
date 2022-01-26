@@ -20,8 +20,8 @@ const authMiddleware = async (req, res, next) => {
   }
 
   const user = await User.findOne({
+    attributes: { exclude: 'password' },
     where: { id },
-    attributes: { exclude: ['password'] },
     raw: true,
   });
   if (!user) {

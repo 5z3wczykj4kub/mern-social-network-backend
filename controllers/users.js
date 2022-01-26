@@ -42,18 +42,11 @@ const getManyUsersController = async (req, res, next) => {
             ),
             { [Op.substring]: search }
           ),
-          sequelize.where(
-            sequelize.fn(
-              'concat',
-              sequelize.col('firstName'),
-              sequelize.col('lastName')
-            ),
-            {
-              [Op.gt]: sequelize.literal(
-                `(select concat(firstName, lastName) from Users where id = '${leid}')`
-              ),
-            }
-          ),
+          {
+            id: {
+              [Op.lt]: leid,
+            },
+          },
         ],
       }
     : sequelize.where(
@@ -65,13 +58,12 @@ const getManyUsersController = async (req, res, next) => {
         { [Op.substring]: search }
       );
 
-  const users = await User.findAll({
+  const users = await User.findAndCountAll({
+    attributes: {
+      exclude: 'password',
+    },
     where,
-    order: sequelize.fn(
-      'concat',
-      sequelize.col('firstName'),
-      sequelize.col('lastName')
-    ),
+    order: [['id', 'DESC']],
     raw: true,
     limit,
   });
