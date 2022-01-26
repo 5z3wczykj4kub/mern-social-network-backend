@@ -4,7 +4,7 @@ import {
   signInController,
   signUpController,
 } from '../controllers/auth.js';
-import authMiddleware from '../middleware/authMiddleware.js';
+import authMiddleware from '../middleware/auth.js';
 import { signInValidator, signUpValidator } from '../validators/auth.js';
 
 const router = express.Router();

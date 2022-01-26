@@ -2,7 +2,7 @@ import 'colors';
 import 'dotenv/config';
 import express from 'express';
 import sequelize from './config/sequelize.js';
-import errorMiddleware from './middleware/errorMiddleware.js';
+import errorMiddleware from './middleware/error.js';
 import routes from './routes/routes.js';
 
 const app = express();

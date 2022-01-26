@@ -1,4 +1,10 @@
-import { query } from 'express-validator';
+import { query, param } from 'express-validator';
+
+const getOneUserValidator = param('userId')
+  .trim()
+  .escape()
+  .isInt()
+  .withMessage('invalid id format');
 
 const getManyUsersValidator = [
   query('limit')
@@ -32,4 +38,4 @@ const getManyUsersValidator = [
     .withMessage('query param `leid` must have valid id format'),
 ];
 
-export { getManyUsersValidator };
+export { getOneUserValidator, getManyUsersValidator };
