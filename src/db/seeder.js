@@ -15,7 +15,42 @@ const seedDatabaseWithMockedData = async () => {
       })
     );
     sequelize.sync();
+    // Create many users
     await User.bulkCreate(users, { validate: true });
+
+    /**
+     * FIXME:
+     * Figure out, how to make friendships unique,
+     * so that there is only one row representing
+     * given friendship.
+     */
+
+    // Create friendships:
+    // Get users...
+    const johnDoe = await User.findOne({
+      where: { firstName: 'john', lastName: 'doe' },
+    });
+    const janeDoe = await User.findOne({
+      where: { firstName: 'jane', lastName: 'doe' },
+    });
+    const maxMustermann = await User.findOne({
+      where: { firstName: 'max', lastName: 'mustermann' },
+    });
+
+    // ... and make friend requests
+    await johnDoe.addFriends([janeDoe, 10 /* Snoop Dogg's id */]);
+    await janeDoe.addFriend(maxMustermann);
+
+    // REMOVE LATER
+    console.log(
+      "John Doe's friends:".cyan,
+      await johnDoe.getFriends({ raw: true })
+    );
+    console.log(
+      "Jane Doe's friends:".magenta,
+      await janeDoe.getFriends({ raw: true })
+    );
+
     console.log('Database seeding successed'.green);
   } catch (error) {
     console.error(
@@ -29,10 +64,10 @@ const seedDatabaseWithMockedData = async () => {
 const destroyDatabaseMockedData = async () => {
   try {
     await sequelize.drop();
-    console.log('Database droping successed'.green);
+    console.log('Database dropping successed'.green);
   } catch (error) {
     console.log(
-      `Database droping failed ${
+      `Database dropping failed: ${
         error.message ? error.message : 'no error message'
       }`.red
     );

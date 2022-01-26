@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/sequelize.js';
+import Friend from './Friend.js';
 
 class User extends Model {}
 
@@ -116,5 +117,12 @@ User.init(
     modelName: 'User',
   }
 );
+
+User.belongsToMany(User, {
+  as: 'Friends',
+  through: Friend,
+  foreignKey: 'requesterId',
+  otherKey: 'receiverId',
+});
 
 export default User;
