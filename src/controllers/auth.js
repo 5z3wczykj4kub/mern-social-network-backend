@@ -84,7 +84,10 @@ const signInController = async (req, res, next) => {
   const error = new Error('invalid email or password');
 
   // Validate email
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({
+    attributes: ['id', 'password'],
+    where: { email },
+  });
   if (!user) {
     res.status(401);
     return next(error);
@@ -92,7 +95,6 @@ const signInController = async (req, res, next) => {
 
   // Validate password
   const isPasswordValid = await bcrypt.compare(password, user.password);
-  console.log(isPasswordValid);
   if (!isPasswordValid) {
     res.status(401);
     return next(error);

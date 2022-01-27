@@ -119,10 +119,17 @@ User.init(
 );
 
 User.belongsToMany(User, {
-  as: 'Friends',
+  as: 'Receivers',
   through: Friend,
   foreignKey: 'requesterId',
   otherKey: 'receiverId',
+});
+
+User.belongsToMany(User, {
+  as: 'Requesters',
+  through: Friend,
+  foreignKey: 'receiverId',
+  otherKey: 'requesterId',
 });
 
 export default User;

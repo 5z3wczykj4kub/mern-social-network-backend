@@ -38,17 +38,25 @@ const seedDatabaseWithMockedData = async () => {
     });
 
     // ... and make friend requests
-    await johnDoe.addFriends([janeDoe, 10 /* Snoop Dogg's id */]);
-    await janeDoe.addFriend(maxMustermann);
+    await johnDoe.addReceivers([janeDoe, 10 /* Snoop Dogg's id */]);
+    await janeDoe.addReceiver(maxMustermann);
 
     // REMOVE LATER
     console.log(
-      "John Doe's friends:".cyan,
-      await johnDoe.getFriends({ raw: true })
+      "John Doe's receivers:".cyan,
+      await johnDoe.getReceivers({ raw: true })
     );
     console.log(
-      "Jane Doe's friends:".magenta,
-      await janeDoe.getFriends({ raw: true })
+      "John Doe's requesters:".cyan,
+      await johnDoe.getRequesters({ raw: true })
+    );
+    console.log(
+      "Jane Doe's requesters:".magenta,
+      await janeDoe.getRequesters({ raw: true })
+    );
+    console.log(
+      "Jane Doe's receivers",
+      await janeDoe.getReceivers({ raw: true })
     );
 
     console.log('Database seeding successed'.green);

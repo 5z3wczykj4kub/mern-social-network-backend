@@ -8,6 +8,9 @@ Friend.init(
     status: {
       type: DataTypes.STRING,
       defaultValue: 'pending',
+      validate: {
+        isIn: [['pending', 'rejected', 'accepted']],
+      },
     },
   },
   {
