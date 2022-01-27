@@ -41,24 +41,6 @@ const seedDatabaseWithMockedData = async () => {
     await johnDoe.addReceivers([janeDoe, 10 /* Snoop Dogg's id */]);
     await janeDoe.addReceiver(maxMustermann);
 
-    // REMOVE LATER
-    console.log(
-      "John Doe's receivers:".cyan,
-      await johnDoe.getReceivers({ raw: true })
-    );
-    console.log(
-      "John Doe's requesters:".cyan,
-      await johnDoe.getRequesters({ raw: true })
-    );
-    console.log(
-      "Jane Doe's requesters:".magenta,
-      await janeDoe.getRequesters({ raw: true })
-    );
-    console.log(
-      "Jane Doe's receivers",
-      await janeDoe.getReceivers({ raw: true })
-    );
-
     console.log('Database seeding successed'.green);
   } catch (error) {
     console.error(
