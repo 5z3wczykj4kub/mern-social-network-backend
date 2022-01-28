@@ -33,6 +33,14 @@ const sendFriendRequestController = async (req, res, next) => {
     return next(new Error('invalid token'));
   }
 
+  // Prevent user from sending friend requests to himself/herself
+  if (requester.id === receiverId) {
+    res.status(400);
+    return next(
+      new Error('user cannot send a friend request to himself/herself')
+    );
+  }
+
   // Check if the receiver user exists
   const receiver = await User.findOne({ where: { id: receiverId } });
   if (!receiver) {
