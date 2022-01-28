@@ -35,4 +35,23 @@ const respondToFriendRequestValidator = [
     .withMessage('response should be either `rejected` or `accepted`'),
 ];
 
-export { sendFriendRequestValidator, respondToFriendRequestValidator };
+const cancelFriendRequestValidator = [
+  param('userId')
+    .trim()
+    .escape()
+    .toInt()
+    .isInt()
+    .withMessage('invalid id format'),
+  param('friendId')
+    .trim()
+    .escape()
+    .toInt()
+    .isInt()
+    .withMessage('invalid id format'),
+];
+
+export {
+  sendFriendRequestValidator,
+  respondToFriendRequestValidator,
+  cancelFriendRequestValidator,
+};

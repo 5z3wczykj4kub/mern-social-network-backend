@@ -133,4 +133,57 @@ const respondToFriendRequestController = async (req, res, next) => {
   return res.status(200).json(friendship);
 };
 
-export { sendFriendRequestController, respondToFriendRequestController };
+/**
+ * @desc   Cancel friend request
+ * @route  DELETE /api/users/:userId/friends/:friendId
+ * @access Private
+ */
+const cancelFriendRequestController = async (req, res, next) => {
+  // Express-validator boilerplate
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      errors: errors.array().map((error) => ({
+        message: error.msg,
+        param: error.param,
+      })),
+    });
+
+  const requester = req.user;
+  const { userId, friendId: receiverId } = req.params;
+
+  /**
+   * Checks if the user id from jwt is the same as one in url param,
+   * even though, the user id from the url param is never used.
+   * It is only present in the url for stylistic reasons as I'm trying to
+   * keep my REST API restfull as possible.
+   */
+  if (requester.id !== userId) {
+    res.status(403);
+    return next(new Error('invalid token'));
+  }
+
+  const isFriendRequestCanceled =
+    (await Friend.destroy({
+      where: {
+        requesterId: requester.id,
+        receiverId,
+        status: 'pending',
+      },
+    })) === 1;
+
+  if (!isFriendRequestCanceled) {
+    res.status(400);
+    return next(new Error('canceling friend request failed'));
+  }
+
+  return res.status(200).json({
+    message: 'friend request cancelation success',
+  });
+};
+
+export {
+  sendFriendRequestController,
+  respondToFriendRequestController,
+  cancelFriendRequestController,
+};
