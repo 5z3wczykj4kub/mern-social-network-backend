@@ -71,8 +71,8 @@ const getUserFriendsController = async (req, res, next) => {
 
   const { cursor, limit } = req.query;
 
-  const query = `
-    select * from
+  const query = (isCounting = false) => `
+    select ${isCounting ? 'count(*) as count' : '*'} from
     (select f.id , u.id as userId, u.firstName, u.lastName
       from Users u inner join Friends f
       on u.id = f.requesterId and f.receiverId = ${userId}
@@ -83,18 +83,24 @@ const getUserFriendsController = async (req, res, next) => {
       on u.id = f.receiverId and f.requesterId = ${userId} 
       where status = 'accepted'
     order by id desc) U
-    ${cursor ? `where id < ${cursor}` : ''} limit ${limit};
+    ${cursor ? `where id < ${cursor}` : ''} ${
+    isCounting ? '' : `limit ${limit}`
+  };
   `;
 
   /**
-   * TODO:
-   * Improve the query above to return data similar
-   * to the Sequelize `Model.findAndCountAll()` method.
+   * Mimic Sequelize `Model.findAndCountAll()` method.
+   * https://github.com/sequelize/sequelize/blob/3092462fc02a7754b9962cb2614dd7d3d0c10133/lib/model.js#L2207
    */
+  const [[{ count }], rows] = await Promise.all([
+    await sequelize.query(query(true), { type: QueryTypes.SELECT }),
+    await sequelize.query(query(), { type: QueryTypes.SELECT }),
+  ]);
 
-  const friends = await sequelize.query(query, { type: QueryTypes.SELECT });
-
-  return res.status(200).json(friends);
+  return res.status(200).json({
+    count,
+    rows,
+  });
 };
 
 /**

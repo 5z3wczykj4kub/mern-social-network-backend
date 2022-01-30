@@ -50,15 +50,16 @@ const getManyUsersController = async (req, res) => {
       })),
     });
 
-  const { search, leid, limit } = req.query;
+  const { search, cursor, limit } = req.query;
 
   /**
    * Find users, where the search phrase
    * is a substring of their full name.
    *
-   * For cursor based pagination
-   * use `leid` (last entity id),
-   * whose value represents the last list item viewed on the front-end.
+   * Use `cursor` for pagination,
+   * which holds the value (id)
+   * of the last list item
+   * rendered on the front-end.
    *
    * Given this information,
    * with the use of SQL subqueries,
@@ -67,7 +68,7 @@ const getManyUsersController = async (req, res) => {
    * Cursor based pagination, in opposition to the offset one,
    * prevents from returning duplicated or incomplete data.
    */
-  const where = leid
+  const where = cursor
     ? {
         [Op.and]: [
           sequelize.where(
@@ -80,7 +81,7 @@ const getManyUsersController = async (req, res) => {
           ),
           {
             id: {
-              [Op.lt]: leid,
+              [Op.lt]: cursor,
             },
           },
         ],

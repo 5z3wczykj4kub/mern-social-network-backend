@@ -30,12 +30,12 @@ const getManyUsersValidator = [
       return true;
     })
     .customSanitizer((searchPhrase) => searchPhrase.split(' ').join('')),
-  query('leid')
+  query('cursor')
     .trim()
     .escape()
     .isInt()
     .optional()
-    .withMessage('query param `leid` must have valid id format'),
+    .withMessage('query param `cursor` must have valid id format'),
 ];
 
 export { getOneUserValidator, getManyUsersValidator };
