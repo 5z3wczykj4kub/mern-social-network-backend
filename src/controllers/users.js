@@ -1,7 +1,7 @@
-import User from '../models/User.js';
 import { validationResult } from 'express-validator';
 import { Op } from 'sequelize';
 import sequelize from '../config/sequelize.js';
+import User from '../models/User.js';
 
 /**
  * @desc   Get one user
@@ -28,7 +28,7 @@ const getOneUserController = async (req, res, next) => {
 
   if (!user) {
     res.status(404);
-    return next(new Error(`user with the given id (${id}) doesn\'t exists`));
+    return next(new Error(`user with the given id (${id}) doesn\'t exist`));
   }
 
   return res.status(200).json(user);

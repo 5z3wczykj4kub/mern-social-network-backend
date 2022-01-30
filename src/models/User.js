@@ -76,7 +76,7 @@ User.init(
       },
     },
     gender: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, // ENUM data type would probably be a better choice
       allowNull: false,
       validate: {
         isIn: {

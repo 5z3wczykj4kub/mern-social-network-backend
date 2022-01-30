@@ -9,10 +9,12 @@ Friend.init(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+      allowNull: false,
     },
     status: {
       type: DataTypes.STRING,
       defaultValue: 'pending',
+      allowNull: false,
       validate: {
         isIn: [['pending', 'rejected', 'accepted']],
       },

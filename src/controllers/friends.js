@@ -1,9 +1,8 @@
-import Friend from '../models/Friend.js';
-import { QueryTypes } from 'sequelize';
-import User from '../models/User.js';
-import { Op } from 'sequelize';
 import { validationResult } from 'express-validator';
+import { Op, QueryTypes } from 'sequelize';
 import sequelize from '../config/sequelize.js';
+import Friend from '../models/Friend.js';
+import User from '../models/User.js';
 
 /**
  * @desc   Get friends of a given user

@@ -1,16 +1,19 @@
 import express from 'express';
 import authMiddleware from '../middleware/auth.js';
 import authRoutes from './auth.js';
+import friendsRoutes from './friends.js';
 import usersRoutes from './users.js';
-import friendRoutes from './friends.js';
+import postsRoutes from './posts.js';
 
 const router = express.Router();
 
-// Authenticaton routes
+// Authenticaton
 router.use('/auth', authRoutes);
-// User search and profile fetching routes
+// Users
 router.use('/users', authMiddleware, usersRoutes);
-// Friend requests routes
-router.use('/users', authMiddleware, friendRoutes);
+// Friends
+router.use('/users', authMiddleware, friendsRoutes);
+// Posts
+router.use('/', authMiddleware, postsRoutes);
 
 export default router;
