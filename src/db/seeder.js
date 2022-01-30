@@ -16,17 +16,21 @@ const seedDatabaseWithMockedData = async () => {
     );
     sequelize.sync();
     // Create many users
-    await User.bulkCreate(users, { validate: true });
-
-    /**
-     * FIXME:
-     * Figure out, how to make friendships unique,
-     * so that there is only one row representing
-     * given friendship.
-     */
+    const createdUsers = await User.bulkCreate(users, { validate: true });
 
     // Create friendships:
-    // Get users...
+    // ...first send some random invitations,
+    // where every third person requests the friendship,
+    // while others are receivers...
+    await Promise.all(
+      await createdUsers.map(async (createdUser, index, array) => {
+        if (index % 3 === 0)
+          return await createdUser.addReceiver(array[index + 1]);
+        if (index === array.length - 1) return;
+        return await createdUser.addRequester(array[index + 1]);
+      })
+    );
+    // ...then get some specifc users...
     const johnDoe = await User.findOne({
       where: { firstName: 'john', lastName: 'doe' },
     });
@@ -37,9 +41,9 @@ const seedDatabaseWithMockedData = async () => {
       where: { firstName: 'max', lastName: 'mustermann' },
     });
 
-    // ... and make friend requests
-    await johnDoe.addReceivers([janeDoe, 10 /* Snoop Dogg's id */]);
-    await janeDoe.addReceiver(maxMustermann);
+    // ...and set ther friendships...
+    // await johnDoe.addReceivers([janeDoe, 10 /* Snoop Dogg's id */]);
+    // await janeDoe.addReceiver(maxMustermann);
 
     console.log('Database seeding successed'.green);
   } catch (error) {

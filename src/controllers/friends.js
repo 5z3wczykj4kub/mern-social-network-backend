@@ -1,7 +1,101 @@
 import Friend from '../models/Friend.js';
+import { QueryTypes } from 'sequelize';
 import User from '../models/User.js';
 import { Op } from 'sequelize';
 import { validationResult } from 'express-validator';
+import sequelize from '../config/sequelize.js';
+
+/**
+ * @desc   Get friends of a given user
+ * @route  GET /api/users/:userId/friends
+ * @access Private
+ */
+const getUserFriendsController = async (req, res, next) => {
+  // Express-validator boilerplate
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      errors: errors.array().map((error) => ({
+        message: error.msg,
+        param: error.param,
+      })),
+    });
+
+  const requester = req.user;
+  const { userId } = req.params;
+
+  // Check if the user we're looking for exists
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) {
+    res.status(404);
+    return next(
+      new Error(`user with the given id (${userId}) doesn\'t exists`)
+    );
+  }
+
+  /**
+   * This endpoint allows to get friends of a specific user.
+   * If the user is the one requesting it
+   * (e.g., end user browsing through his/her friends list),
+   * than we can return data right away.
+   * If the requesting user wants to get friends of another user,
+   * than we have to check if they are friends.
+   */
+
+  const [isReceiver, isRequester] = await Promise.all([
+    await requester.hasReceiver(user, {
+      through: {
+        where: { status: 'accepted' },
+      },
+    }),
+    await requester.hasRequester(user, {
+      through: {
+        where: { status: 'accepted' },
+      },
+    }),
+  ]);
+
+  /**
+   * Checks if we are the requester or if we are friends with the other user.
+   * From De Morgan's law:
+   * ~(p ∨ q ∨ r) <=> ~p ∧ ~q ∧ ~r
+   * It means that:
+   * !(isReceiver || isRequester || requester.id === userId)
+   * is the same as:
+   * !isReceiver && !isRequester && requester.id !== userId
+   */
+  if (!isReceiver && !isRequester && requester.id !== userId) {
+    res.status(403);
+    return next(new Error('unauthorized to view requested user friends'));
+  }
+
+  const { cursor, limit } = req.query;
+
+  const query = `
+    select * from
+    (select f.id , u.id as userId, u.firstName, u.lastName
+      from Users u inner join Friends f
+      on u.id = f.requesterId and f.receiverId = ${userId}
+      where status = 'accepted'
+    union
+    select f.id , u.id as userId, u.firstName, u.lastName
+      from Users u inner join Friends f 
+      on u.id = f.receiverId and f.requesterId = ${userId} 
+      where status = 'accepted'
+    order by id desc) U
+    ${cursor ? `where id < ${cursor}` : ''} limit ${limit};
+  `;
+
+  /**
+   * TODO:
+   * Improve the query above to return data similar
+   * to the Sequelize `Model.findAndCountAll()` method.
+   */
+
+  const friends = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+  return res.status(200).json(friends);
+};
 
 /**
  * @desc   Send friend request
@@ -183,6 +277,7 @@ const cancelFriendRequestController = async (req, res, next) => {
 };
 
 export {
+  getUserFriendsController,
   sendFriendRequestController,
   respondToFriendRequestController,
   cancelFriendRequestController,

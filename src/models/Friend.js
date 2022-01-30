@@ -5,6 +5,11 @@ class Friend extends Model {}
 
 Friend.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     status: {
       type: DataTypes.STRING,
       defaultValue: 'pending',
