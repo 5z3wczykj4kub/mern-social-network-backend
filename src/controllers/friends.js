@@ -1,6 +1,7 @@
 import { validationResult } from 'express-validator';
 import { Op, QueryTypes } from 'sequelize';
 import sequelize from '../config/sequelize.js';
+import checkIfFriendsOrOwner from '../helpers/checkIfFriendsOrOwner.js';
 import Friend from '../models/Friend.js';
 import User from '../models/User.js';
 
@@ -40,30 +41,9 @@ const getUserFriendsController = async (req, res, next) => {
    * If the requesting user wants to get friends of another user,
    * than we have to check if they are friends.
    */
+  const isFriendsOrOwner = await checkIfFriendsOrOwner(requester, user);
 
-  const [isReceiver, isRequester] = await Promise.all([
-    await requester.hasReceiver(user, {
-      through: {
-        where: { status: 'accepted' },
-      },
-    }),
-    await requester.hasRequester(user, {
-      through: {
-        where: { status: 'accepted' },
-      },
-    }),
-  ]);
-
-  /**
-   * Checks if we are the requester or if we are friends with the other user.
-   * From De Morgan's law:
-   * ~(p ∨ q ∨ r) <=> ~p ∧ ~q ∧ ~r
-   * It means that:
-   * !(isReceiver || isRequester || requester.id === userId)
-   * is the same as:
-   * !isReceiver && !isRequester && requester.id !== userId
-   */
-  if (!isReceiver && !isRequester && requester.id !== userId) {
+  if (!isFriendsOrOwner) {
     res.status(403);
     return next(new Error('unauthorized to view requested user friends'));
   }

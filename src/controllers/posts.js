@@ -1,24 +1,8 @@
 import { validationResult } from 'express-validator';
+import checkIfFriendsOrOwner from '../helpers/checkIfFriendsOrOwner.js';
+import getPostObject from '../helpers/getPostObject.js';
 import Post from '../models/Post.js';
 import User from '../models/User.js';
-
-/**
- * Helper function
- * preparing post object
- * to be sent as JSON payload
- */
-const getPostObject = (post, author) => ({
-  id: post.id,
-  content: post.content,
-  media: post.media ? post.media : null,
-  createdAt: post.createdAt,
-  author: {
-    id: author.id,
-    firstName: author.firstName,
-    lastName: author.lastName,
-    avatar: author.avatar,
-  },
-});
 
 /**
  * @desc   Get one post
@@ -64,20 +48,9 @@ const getOnePostController = async (req, res, next) => {
    */
   const author = await User.findOne({ where: { id: post.authorId } });
 
-  const [isReceiver, isRequester] = await Promise.all([
-    await requester.hasReceiver(author, {
-      through: {
-        where: { status: 'accepted' },
-      },
-    }),
-    await requester.hasRequester(author, {
-      through: {
-        where: { status: 'accepted' },
-      },
-    }),
-  ]);
+  const isFriendsOrOwner = await checkIfFriendsOrOwner(requester, author);
 
-  if (!isReceiver && !isRequester && requester.id !== author.id) {
+  if (!isFriendsOrOwner) {
     res.status(403);
     return next(new Error('unauthorized to view requested post'));
   }
