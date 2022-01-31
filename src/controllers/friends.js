@@ -72,8 +72,8 @@ const getUserFriendsController = async (req, res, next) => {
    * https://github.com/sequelize/sequelize/blob/3092462fc02a7754b9962cb2614dd7d3d0c10133/lib/model.js#L2207
    */
   const [[{ count }], rows] = await Promise.all([
-    await sequelize.query(query(true), { type: QueryTypes.SELECT }),
-    await sequelize.query(query(), { type: QueryTypes.SELECT }),
+    sequelize.query(query(true), { type: QueryTypes.SELECT }),
+    sequelize.query(query(), { type: QueryTypes.SELECT }),
   ]);
 
   return res.status(200).json({

@@ -23,7 +23,7 @@ const seedDatabaseWithMockedData = async () => {
     // where every third person requests the friendship,
     // while others are receivers...
     await Promise.all(
-      await createdUsers.map(async (createdUser, index, array) => {
+      createdUsers.map(async (createdUser, index, array) => {
         if (index % 3 === 0)
           return await createdUser.addReceiver(array[index + 1]);
         if (index === array.length - 1) return;

@@ -19,12 +19,12 @@ const checkIfFriendsOrOwner = async (requester, user) => {
   if (requester.id === user.id) return true;
 
   const [isReceiver, isRequester] = await Promise.all([
-    await requester.hasReceiver(user, {
+    requester.hasReceiver(user, {
       through: {
         where: { status: 'accepted' },
       },
     }),
-    await requester.hasRequester(user, {
+    requester.hasRequester(user, {
       through: {
         where: { status: 'accepted' },
       },
