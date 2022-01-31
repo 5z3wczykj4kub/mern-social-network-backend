@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import sequelize from '../config/sequelize.js';
 import { getHomepagePostsQuery } from '../db/queries.js';
 import checkIfFriendsOrOwner from '../helpers/checkIfFriendsOrOwner.js';
@@ -96,6 +96,78 @@ const getHomepagePostsController = async (req, res, next) => {
 };
 
 /**
+ * @desc   Get specific user's posts
+ * @route  GET /api/users/:userId/posts
+ * @access Private
+ */
+const getPostsByUserIdController = async (req, res, next) => {
+  // Express-validator boilerplate
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      errors: errors.array().map((error) => ({
+        message: error.msg,
+        param: error.param,
+      })),
+    });
+
+  const requester = req.user;
+  const { userId } = req.params;
+  const { cursor, limit } = req.query;
+
+  // Check if user whose posts we want to see exists
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) {
+    res.status(404);
+    return next(new Error(`user with the given id (${userId}) doesn\'t exist`));
+  }
+
+  const isFriendsOrOwner = await checkIfFriendsOrOwner(requester, user);
+
+  if (!isFriendsOrOwner) {
+    res.status(403);
+    return next(new Error('unauthorized to view requested post'));
+  }
+
+  const [count, rows] = await Promise.all([
+    user.countPosts({
+      where: cursor && {
+        id: { [Op.lt]: cursor },
+      },
+    }),
+    user.getPosts({
+      include: {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName', 'avatar'],
+      },
+      attributes: ['id', 'content', 'media', 'createdAt'],
+      where: cursor && {
+        id: { [Op.lt]: cursor },
+      },
+      order: [['id', 'DESC']],
+      limit,
+    }),
+  ]);
+
+  return res.status(200).json({
+    count,
+    // Sequelize auto-generated mixins are quite irritating and pretty useless
+    rows: rows.map((row) => ({
+      id: row.id,
+      content: row.content,
+      media: row.media,
+      createdAt: row.createdAt,
+      author: {
+        id: row.User.id,
+        firstName: row.User.firstName,
+        lastName: row.User.lastName,
+        avatar: row.User.avatar,
+      },
+    })),
+  });
+};
+
+/**
  * @desc   Add post
  * @route  POST /api/posts
  * @access Private
@@ -126,4 +198,9 @@ const addPostController = async (req, res, next) => {
   return res.status(201).json(getPostObject(post, author));
 };
 
-export { getOnePostController, getHomepagePostsController, addPostController };
+export {
+  getOnePostController,
+  getHomepagePostsController,
+  getPostsByUserIdController,
+  addPostController,
+};
