@@ -1,4 +1,7 @@
 import { validationResult } from 'express-validator';
+import { QueryTypes } from 'sequelize';
+import sequelize from '../config/sequelize.js';
+import { getHomepagePostsQuery } from '../db/queries.js';
 import checkIfFriendsOrOwner from '../helpers/checkIfFriendsOrOwner.js';
 import getPostObject from '../helpers/getPostObject.js';
 import Post from '../models/Post.js';
@@ -59,6 +62,40 @@ const getOnePostController = async (req, res, next) => {
 };
 
 /**
+ * @desc   Get homepage posts
+ * @route  GET /api/posts
+ * @access Private
+ */
+const getHomepagePostsController = async (req, res, next) => {
+  // Express-validator boilerplate
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({
+      errors: errors.array().map((error) => ({
+        message: error.msg,
+        param: error.param,
+      })),
+    });
+
+  const requester = req.user;
+  const { cursor, limit } = req.query;
+
+  const [[{ count }], rows] = await Promise.all([
+    sequelize.query(getHomepagePostsQuery(requester.id, cursor, limit, true), {
+      type: QueryTypes.SELECT,
+    }),
+    sequelize.query(getHomepagePostsQuery(requester.id, cursor, limit), {
+      type: QueryTypes.SELECT,
+    }),
+  ]);
+
+  return res.status(200).json({
+    count,
+    rows: rows.map((row) => getPostObject(row)),
+  });
+};
+
+/**
  * @desc   Add post
  * @route  POST /api/posts
  * @access Private
@@ -89,4 +126,4 @@ const addPostController = async (req, res, next) => {
   return res.status(201).json(getPostObject(post, author));
 };
 
-export { getOnePostController, addPostController };
+export { getOnePostController, getHomepagePostsController, addPostController };

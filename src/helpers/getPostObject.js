@@ -9,10 +9,10 @@ const getPostObject = (post, author) => ({
   media: post.media ? post.media : null,
   createdAt: post.createdAt,
   author: {
-    id: author.id,
-    firstName: author.firstName,
-    lastName: author.lastName,
-    avatar: author.avatar,
+    id: author ? author.id : post.authorId,
+    firstName: author ? author.firstName : post.firstName,
+    lastName: author ? author.lastName : post.lastName,
+    avatar: author ? author.avatar : post.avatar,
   },
 });
 

@@ -24,6 +24,24 @@ const getOnePostValidator = [
     .withMessage('cursor invalid'),
 ];
 
+const getHomepagePostsValidator = [
+  query('limit')
+    .trim()
+    .escape()
+    .default(10)
+    .toInt()
+    .isInt({ min: 1, max: 100 })
+    .withMessage(
+      'query param `limit` must be an integer between 1 and 100 (defaults to 10)'
+    ),
+  query('cursor')
+    .trim()
+    .escape()
+    .isInt()
+    .optional()
+    .withMessage('cursor invalid'),
+];
+
 const addPostValidator = [
   body('content')
     .trim()
@@ -32,4 +50,4 @@ const addPostValidator = [
     .withMessage('post content must not be empty'),
 ];
 
-export { getOnePostValidator, addPostValidator };
+export { getOnePostValidator, getHomepagePostsValidator, addPostValidator };

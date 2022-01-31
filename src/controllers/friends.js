@@ -1,3 +1,4 @@
+import { getUserFriendsQuery } from '../db/queries.js';
 import { validationResult } from 'express-validator';
 import { Op, QueryTypes } from 'sequelize';
 import sequelize from '../config/sequelize.js';
@@ -50,30 +51,17 @@ const getUserFriendsController = async (req, res, next) => {
 
   const { cursor, limit } = req.query;
 
-  const query = (isCounting = false) => `
-    select ${isCounting ? 'count(*) as count' : '*'} from
-    (select f.id , u.id as userId, u.firstName, u.lastName
-      from Users u inner join Friends f
-      on u.id = f.requesterId and f.receiverId = ${userId}
-      where status = 'accepted'
-    union
-    select f.id , u.id as userId, u.firstName, u.lastName
-      from Users u inner join Friends f 
-      on u.id = f.receiverId and f.requesterId = ${userId} 
-      where status = 'accepted'
-    order by id desc) U
-    ${cursor ? `where id < ${cursor}` : ''} ${
-    isCounting ? '' : `limit ${limit}`
-  };
-  `;
-
   /**
-   * Mimic Sequelize `Model.findAndCountAll()` method.
+   * Mimic Sequelize `Model.findAndCountAll()` method's return value.
    * https://github.com/sequelize/sequelize/blob/3092462fc02a7754b9962cb2614dd7d3d0c10133/lib/model.js#L2207
    */
   const [[{ count }], rows] = await Promise.all([
-    sequelize.query(query(true), { type: QueryTypes.SELECT }),
-    sequelize.query(query(), { type: QueryTypes.SELECT }),
+    sequelize.query(getUserFriendsQuery(userId, cursor, limit, true), {
+      type: QueryTypes.SELECT,
+    }),
+    sequelize.query(getUserFriendsQuery(userId, cursor, limit), {
+      type: QueryTypes.SELECT,
+    }),
   ]);
 
   return res.status(200).json({
