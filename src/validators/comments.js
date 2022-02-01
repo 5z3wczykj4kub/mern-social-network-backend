@@ -1,19 +1,5 @@
 import { body, param, query } from 'express-validator';
 
-const addCommentValidator = [
-  param('postId')
-    .trim()
-    .escape()
-    .toInt()
-    .isInt()
-    .withMessage('invalid id format'),
-  body('content')
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage('comment content must not be empty'),
-];
-
 const getCommentsValidator = [
   param('postId')
     .trim()
@@ -36,6 +22,20 @@ const getCommentsValidator = [
     .isInt()
     .optional()
     .withMessage('cursor invalid'),
+];
+
+const addCommentValidator = [
+  param('postId')
+    .trim()
+    .escape()
+    .toInt()
+    .isInt()
+    .withMessage('invalid id format'),
+  body('content')
+    .trim()
+    .escape()
+    .notEmpty()
+    .withMessage('comment content must not be empty'),
 ];
 
 export { getCommentsValidator, addCommentValidator };
