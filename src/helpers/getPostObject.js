@@ -7,6 +7,7 @@ const getPostObject = (post, author) => ({
   id: post.id,
   content: post.content,
   media: post.media ? post.media : null,
+  comments: post.comments,
   createdAt: post.createdAt,
   author: {
     id: author ? author.id : post.authorId,

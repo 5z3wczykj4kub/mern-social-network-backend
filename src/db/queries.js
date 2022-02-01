@@ -21,7 +21,8 @@ const getHomepagePostsQuery = (userId, cursor, limit, isCounting = false) => `
         u.id authorId,
         u.firstName,
         u.lastName,
-        u.avatar
+        u.avatar,
+        (SELECT count(*) FROM Comments WHERE postId = p.id) AS comments
     FROM
       Posts p
     INNER JOIN Users u ON p.authorId = u.id

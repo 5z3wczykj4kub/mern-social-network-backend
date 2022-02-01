@@ -138,6 +138,10 @@ const getPostsByUserIdController = async (req, res, next) => {
     user.getPosts({
       include: {
         model: User,
+        /**
+         * TODO:
+         * Append number of comments to each post.
+         */
         attributes: ['id', 'firstName', 'lastName', 'avatar'],
       },
       attributes: ['id', 'content', 'media', 'createdAt'],
