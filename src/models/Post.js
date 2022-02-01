@@ -19,23 +19,6 @@ Post.init(
        * pathname or some kind of id.
        */
     },
-    // REMOVE LATER - these data will be derived from other tables!
-    // numberOfLikes: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   defaultValue: 0,
-    //   validate: {
-    //     isInt: true
-    //   }
-    // },
-    // numberOfComments: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   defaultValue: 0,
-    //   validate: {
-    //     isInt: true
-    //   }
-    // }
   },
   {
     sequelize,
