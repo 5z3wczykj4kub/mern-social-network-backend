@@ -58,7 +58,12 @@ const getOnePostController = async (req, res, next) => {
     return next(new Error('unauthorized to view requested post'));
   }
 
-  return res.status(200).json(getPostObject(post, author));
+  // Append number of comments to the post
+  const comments = await post.countComments();
+
+  return res
+    .status(200)
+    .json(getPostObject({ ...post.toJSON(), comments }, author));
 };
 
 /**
