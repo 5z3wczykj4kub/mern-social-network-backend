@@ -2,6 +2,7 @@ import { validationResult } from 'express-validator';
 import { Op } from 'sequelize';
 import sequelize from '../config/sequelize.js';
 import User from '../models/User.js';
+import Friend from '../models/Friend.js';
 
 /**
  * @desc   Get one user
@@ -19,6 +20,7 @@ const getOneUserController = async (req, res, next) => {
       })),
     });
 
+  const requester = req.user;
   const { userId: id } = req.params;
 
   const user = await User.findOne({
@@ -31,7 +33,24 @@ const getOneUserController = async (req, res, next) => {
     return next(new Error(`user with the given id (${id}) doesn\'t exist`));
   }
 
-  return res.status(200).json(user);
+  // Get friendship status
+  const friendship = await Friend.findOne({
+    attributes: ['status'],
+    where: {
+      [Op.or]: [
+        {
+          requesterId: requester.id,
+          receiverId: user.id,
+        },
+        {
+          requesterId: user.id,
+          receiverId: requester.id,
+        },
+      ],
+    },
+  });
+
+  return res.status(200).json({ ...user.toJSON(), friendship });
 };
 
 /**
