@@ -68,14 +68,14 @@ const getUserFriendsQuery = (userId, cursor, limit, isCounting = false) => `
     ${isCounting ? 'COUNT(*) AS count' : '*'}
   FROM
     (SELECT 
-      f.id, u.id AS userId, u.firstName, u.lastName
+      f.id, u.id AS userId, u.firstName, u.lastName, u.avatar
     FROM
       Users u
     INNER JOIN Friends f ON u.id = f.requesterId
       AND f.receiverId = ${userId}
     WHERE
       status = 'accepted' UNION SELECT 
-      f.id, u.id AS userId, u.firstName, u.lastName
+      f.id, u.id AS userId, u.firstName, u.lastName, u.avatar
     FROM
       Users u
     INNER JOIN Friends f ON u.id = f.receiverId
@@ -94,4 +94,14 @@ const getUserFriendsQuery = (userId, cursor, limit, isCounting = false) => `
   ${isCounting ? '' : `LIMIT ${limit}`};
 `;
 
-export { getHomepagePostsQuery, getUserFriendsQuery };
+/**
+ * Returns number of comments.
+ * Used as a subquery in "get specific user's posts" query.
+ */
+const getCommentsLengthSubquery = `(SELECT COUNT(*) FROM Comments WHERE postId = Post.id)`;
+
+export {
+  getHomepagePostsQuery,
+  getUserFriendsQuery,
+  getCommentsLengthSubquery,
+};

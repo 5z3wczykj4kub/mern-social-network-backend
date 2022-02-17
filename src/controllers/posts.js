@@ -1,7 +1,10 @@
 import { validationResult } from 'express-validator';
 import { Op, QueryTypes } from 'sequelize';
 import sequelize from '../config/sequelize.js';
-import { getHomepagePostsQuery } from '../db/queries.js';
+import {
+  getCommentsLengthSubquery,
+  getHomepagePostsQuery,
+} from '../db/queries.js';
 import checkIfFriendsOrOwner from '../helpers/checkIfFriendsOrOwner.js';
 import getPostObject from '../helpers/getPostObject.js';
 import Post from '../models/Post.js';
@@ -131,7 +134,7 @@ const getPostsByUserIdController = async (req, res, next) => {
 
   if (!isFriendsOrOwner) {
     res.status(403);
-    return next(new Error('unauthorized to view requested post'));
+    return next(new Error('unauthorized to view requested posts'));
   }
 
   const [count, rows] = await Promise.all([
@@ -143,13 +146,15 @@ const getPostsByUserIdController = async (req, res, next) => {
     user.getPosts({
       include: {
         model: User,
-        /**
-         * TODO:
-         * Append number of comments to each post.
-         */
         attributes: ['id', 'firstName', 'lastName', 'avatar'],
       },
-      attributes: ['id', 'content', 'media', 'createdAt'],
+      attributes: [
+        'id',
+        'content',
+        'media',
+        'createdAt',
+        [sequelize.literal(getCommentsLengthSubquery), 'comments'],
+      ],
       where: cursor && {
         id: { [Op.lt]: cursor },
       },
@@ -165,6 +170,7 @@ const getPostsByUserIdController = async (req, res, next) => {
       id: row.id,
       content: row.content,
       media: row.media,
+      comments: row.dataValues.comments,
       createdAt: row.createdAt,
       author: {
         id: row.User.id,
