@@ -33,24 +33,43 @@ const getOneUserController = async (req, res, next) => {
     return next(new Error(`user with the given id (${id}) doesn\'t exist`));
   }
 
-  // Get friendship status
-  const friendship = await Friend.findOne({
-    attributes: ['status'],
-    where: {
-      [Op.or]: [
-        {
-          requesterId: requester.id,
-          receiverId: user.id,
-        },
-        {
-          requesterId: user.id,
-          receiverId: requester.id,
-        },
-      ],
-    },
-  });
+  // Get friendship status and friends count
+  const [friendship, friends] = await Promise.all([
+    Friend.findOne({
+      attributes: ['status'],
+      where: {
+        [Op.or]: [
+          {
+            requesterId: requester.id,
+            receiverId: user.id,
+          },
+          {
+            requesterId: user.id,
+            receiverId: requester.id,
+          },
+        ],
+      },
+    }),
+    Friend.count({
+      where: {
+        [Op.and]: [
+          {
+            [Op.or]: {
+              requesterId: user.id,
+              receiverId: user.id,
+            },
+          },
+          { status: 'accepted' },
+        ],
+      },
+    }),
+  ]);
 
-  return res.status(200).json({ ...user.toJSON(), friendship });
+  return res.status(200).json({
+    ...user.toJSON(),
+    friendship,
+    friends,
+  });
 };
 
 /**
