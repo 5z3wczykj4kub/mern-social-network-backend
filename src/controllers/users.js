@@ -36,7 +36,7 @@ const getOneUserController = async (req, res, next) => {
   // Get friendship status and friends count
   const [friendship, friends] = await Promise.all([
     Friend.findOne({
-      attributes: ['status'],
+      attributes: ['status', 'requesterId', 'receiverId'],
       where: {
         [Op.or]: [
           {

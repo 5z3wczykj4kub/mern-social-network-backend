@@ -146,7 +146,7 @@ const sendFriendRequestController = async (req, res, next) => {
   }
 
   // Send friend request
-  const friendship = await requester.addReceiver(receiver);
+  const [friendship] = await requester.addReceiver(receiver);
 
   return res.status(201).json(friendship);
 };
