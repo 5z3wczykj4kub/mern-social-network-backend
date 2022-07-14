@@ -1,0 +1,53 @@
+Arguments: 
+  /home/jakub/.nvm/versions/node/v16.14.2/bin/node /home/jakub/.yarn/bin/yarn.js install
+
+PATH: 
+  /home/jakub/.yarn/bin:/home/jakub/.config/yarn/global/node_modules/.bin:/home/jakub/.nvm/versions/node/v16.14.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  16.14.2
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: 139887902848960:error:1408F119:SSL routines:ssl3_get_record:decryption failed or bad record mac:../deps/openssl/openssl/ssl/record/ssl3_record.c:677:
+
+npm manifest: 
+  {
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "nodemon src/index"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "nodemon": "^2.0.14"
+    },
+    "dependencies": {
+      "bcryptjs": "^2.4.3",
+      "colors": "^1.4.0",
+      "cors": "^2.8.5",
+      "dotenv": "^14.2.0",
+      "express": "^4.17.1",
+      "express-validator": "^6.14.0",
+      "jsonwebtoken": "^8.5.1",
+      "mysql2": "^2.3.3",
+      "sequelize": "^6.13.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

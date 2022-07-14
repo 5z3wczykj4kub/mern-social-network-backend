@@ -8,7 +8,7 @@ import commentRoutes from './comments.js';
 
 const router = express.Router();
 
-// Authenticaton
+// Authentication
 router.use('/auth', authRoutes);
 // Users
 router.use('/users', authMiddleware, userRoutes);

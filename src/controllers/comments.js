@@ -37,7 +37,7 @@ const getCommentsController = async (req, res, next) => {
   }
 
   /**
-   * In orderd to get comments, we must first check
+   * In order to get comments, we must first check
    * if the post that we're interested in
    * belongs to us or one of our friends.
    */
@@ -118,7 +118,7 @@ const addCommentController = async (req, res, next) => {
   }
 
   /**
-   * In orderd to add a comment, we must first check
+   * In order to add a comment, we must first check
    * if the post that we're about to comment
    * belongs to us or one of our friends.
    */

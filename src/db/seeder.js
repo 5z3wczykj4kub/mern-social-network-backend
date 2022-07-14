@@ -30,7 +30,7 @@ const seedDatabaseWithMockedData = async () => {
         return await createdUser.addRequester(array[index + 1]);
       })
     );
-    // ...then get some specifc users...
+    // ...then get some specific users...
     const johnDoe = await User.findOne({
       where: { firstName: 'john', lastName: 'doe' },
     });
@@ -41,11 +41,11 @@ const seedDatabaseWithMockedData = async () => {
       where: { firstName: 'max', lastName: 'mustermann' },
     });
 
-    // ...and set ther friendships...
+    // ...and set their friendships...
     // await johnDoe.addReceivers([janeDoe, 10 /* Snoop Dogg's id */]);
     // await janeDoe.addReceiver(maxMustermann);
 
-    console.log('Database seeding successed'.green);
+    console.log('Database seeding succeeded'.green);
   } catch (error) {
     console.error(
       `Database seeding failed: ${
@@ -58,7 +58,7 @@ const seedDatabaseWithMockedData = async () => {
 const destroyDatabaseMockedData = async () => {
   try {
     await sequelize.drop();
-    console.log('Database dropping successed'.green);
+    console.log('Database dropping succeeded'.green);
   } catch (error) {
     console.log(
       `Database dropping failed: ${
